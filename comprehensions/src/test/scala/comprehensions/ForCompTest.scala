@@ -94,3 +94,18 @@ class ForCompTest extends munit.FunSuite:
       ('b', 'B')
     )
     assertEquals(res.toSet, expected.toSet)
+
+  test("validInts: empty list returns empty list"):
+    assertEquals(validInts(Nil), Nil)
+
+  test("validInts: list with no valid integers returns empty list"):
+    assertEquals(validInts(List("a", "b", "c")), Nil)
+
+  test("validInts: list with some valid integers returns list of valid integers"):
+    assertEquals(validInts(List("1", "a", "2", "b", "3")), List(1, 2, 3))
+
+  test("validInts: list with all valid integers returns list of valid integers"):
+    assertEquals(validInts(List("1", "2", "3")), List(1, 2, 3))
+
+  test("validInts: list with negative and positive valid integers returns list of valid integers"):
+    assertEquals(validInts(List("-1", "2", "-3", "4")), List(-1, 2, -3, 4))
