@@ -1,0 +1,78 @@
+package trees
+
+class UnixTreeTest extends TreeSuite(
+      "unixTree",
+      unixTree,
+      List(
+        TreeSuite.leaf,
+        (
+          TreeSuite.singleChild.title,
+          TreeSuite.singleChild.input,
+          """
+parent
+└── child
+""".trim()
+        ),
+        (
+          TreeSuite.balancedTree.title,
+          TreeSuite.balancedTree.input,
+          """
+root
+├── first
+│   ├── first.first
+│   └── first.second
+└── second
+    ├── second.first
+    └── second.second
+""".trim()
+        ),
+        (
+          TreeSuite.instructionsExample.title,
+          TreeSuite.instructionsExample.input,
+          """
+hello
+├── world
+└── and
+    └── welcome
+        └── to
+            └── cs214
+""".trim()
+        ),
+        (
+          TreeSuite.largeTreeCase.title,
+          TreeSuite.largeTreeCase.input,
+          """
+large
+├── tree
+│   └── with
+│       └── many
+│           └── levels
+└── and
+    └── multiple
+        ├── children
+        ├── leaves
+        └── ?
+""".trim()
+        ),
+        (
+          TreeSuite.scalaProject.title,
+          TreeSuite.scalaProject.input,
+          """
+my-project
+├── project
+│   └── build.properties
+├── src
+│   ├── main
+│   │   └── scala
+│   │       └── App.scala
+│   └── test
+│       └── scala
+│           └── AppTest.scala
+├── LICENSE
+├── .gitignore
+├── build.sbt
+└── README.md
+""".trim()
+        )
+      )
+    )
