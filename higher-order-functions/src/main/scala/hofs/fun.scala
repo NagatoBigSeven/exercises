@@ -23,20 +23,19 @@ def IncrementDeuxcrement(x: Int) =
   IntCons(x + 1, IntCons(x + 2, IntNil()))
 
 def ConstructTwo(f: Int => Int, g: Int => Int): Int => IntList =
-  ???
+  x => IntCons(f(x), IntCons(g(x), IntNil()))
 
-val DoubleTriple2 = TODO
-val DivideTrivide2 = TODO
-val IncrementDeuxcrement2 = TODO
+val DoubleTriple2 = ConstructTwo(_ * 2, _ * 3)
+val DivideTrivide2 = ConstructTwo(_ / 2, _ / 3)
+val IncrementDeuxcrement2 = ConstructTwo(_ + 1, _ + 2)
 
-def andThen(f: Int => Double, g: Double => String) =
-  ???
+def andThen(f: Int => Double, g: Double => String): Int => String =
+  x => g(f(x))
 
-val id: Int => Int =
-  TODO
+val id: Int => Int = x => x
 
 def flip(f: (Int, Int) => Int): (Int, Int) => Int =
-  ???
+  (x, y) => f(y, x)
 
 val square = (x: Int) => x * x
 val plusOne = (x: Int) => x + 1
@@ -44,30 +43,31 @@ val minusOne = (x: Int) => x - 1
 def composeInt(f: Int => Int, g: Int => Int): Int => Int =
   x => f(g(x))
 
-val squareMinusOne     = (x: Int) => (x - 1) * (x - 1)
-val squarePlusOne      = (x: Int) => (x + 1) * (x + 1)
-val squareSquare       = (x: Int) => (x * x) * (x * x)
-val squareMinusTwo     = (x: Int) => (x - 2) * (x - 2)
-val squareSquareSquare = (x: Int) =>
-  ((x * x) * (x * x)) * ((x * x) * (x * x))
+val squareMinusOne     = composeInt(square, minusOne)
+val squarePlusOne      = composeInt(square, plusOne)
+val squareSquare       = composeInt(square, square)
+val squareMinusTwo     = composeInt(square, composeInt(minusOne, minusOne))
+val squareSquareSquare = composeInt(square, composeInt(square, square))
 
 def adder(f: Int => Double, g: Int => Double): Int => Double =
-  ???
+  x => f(x) + g(x)
 
 def multiplier(f: Int => Double, g: Int => Double): Int => Double =
-  ???
+  x => f(x) * g(x)
 
 def lifter(op: (Double, Double) => Double): (Int => Double, Int => Double) => (Int => Double) =
-  ???
+  (f, g) => x => op(f(x), g(x))
 
-val adder2 = TODO
-val multiplier2 = TODO
+val adder2 = lifter(_ + _)
+val multiplier2 = lifter(_ * _)
 
 def meet(f: Int => Boolean, g: Int => Boolean): (Int => Boolean) =
-  ???
+  x => f(x) && g(x)
 
 def Meet(l: IntPredicateList): (Int => Boolean) =
-  ???
+  l match
+    case IntPredicateNil() => x => true
+    case IntPredicateCons(head, tail) => meet(head, Meet(tail))
 
 val f0 = (x: Long) => x
 val f1 = (x: Long) => if x > 0 then x else -x
@@ -83,7 +83,7 @@ def eqBoolBool(
     f: Boolean => Boolean,
     g: Boolean => Boolean
 ) =
-  ???
+  (b: Boolean) => f(b) == g(b)
 
 val a = (x: Int) => x
 val b = (x: Int) => -x
@@ -99,19 +99,28 @@ val g = (x: Int) => /* 🔥 */ /* assuming x > 0 */
 import scala.annotation.tailrec
 
 def fixedPoint(f: Int => Int, start: Int): Int =
-  ???
+  if f(start) == start then start
+  else fixedPoint(f, f(start))
 
 def mapAsFoldRight(f: Int => Int): IntList => IntList =
-  ???
+  def foldRight(op: (Int, IntList) => IntList, acc: IntList)(l: IntList): IntList =
+    l match
+      case IntNil() => acc
+      case IntCons(head, tail) => op(head, foldRight(op, acc)(tail))
+  foldRight((x, ys) => IntCons(f(x), ys), IntNil())
 
 def filterAsFoldRight(p: Int => Boolean): IntList => IntList =
-  ???
+  def foldRight(op: (Int, IntList) => IntList, acc: IntList)(l: IntList): IntList =
+    l match
+      case IntNil() => acc
+      case IntCons(head, tail) => op(head, foldRight(op, acc)(tail))
+  foldRight((x, ys) => if p(x) then IntCons(x, ys) else ys, IntNil())
 
 def forallNoIf(p: Int => Boolean)(l: IntList): Boolean =
-  ???
+  l.isEmpty || (p(l.head) && forallNoIf(p)(l.tail))
 
 def existsNoIf(p: Int => Boolean)(l: IntList): Boolean =
-  ???
+  !l.isEmpty && (p(l.head) || existsNoIf(p)(l.tail))
 
 def isGreaterThanBasic(x: Int, y: Int): Boolean =
   x > y
@@ -134,57 +143,62 @@ def incrHeadByXBasic(x: Int, l: IntList): IntList =
   else IntCons(l.head + x, l.tail)
 
 val incrHeadByXAnon: (Int, IntList) => IntList =
-  TODO
+  (x, l) =>
+    if l.isEmpty then l
+    else IntCons(l.head + x, l.tail)
 
 val incrHeadByXCurried: Int => IntList => IntList =
-  TODO
+  x => l =>
+    if l.isEmpty then l
+    else IntCons(l.head + x, l.tail)
 
 def incrHeadByXCurriedDef(x: Int)(l: IntList): IntList =
-  ???
+  if l.isEmpty then l
+  else IntCons(l.head + x, l.tail)
 
 def addToFrontBasic(x: Int, y: Int, l: IntList): IntList =
   IntCons(x, IntCons(y, l))
 
 val addToFrontAnon: (Int, Int, IntList) => IntList =
-  TODO
+  (x, y, l) => IntCons(x, IntCons(y, l))
 
 val addToFrontPartlyCurried: (Int, Int) => IntList => IntList =
-  TODO
+  (x, y) => l => IntCons(x, IntCons(y, l))
 
 val addToFrontCurried: Int => Int => IntList => IntList =
-  TODO
+  x => y => l => IntCons(x, IntCons(y, l))
 
 def addToFrontCurriedDef(x: Int)(y: Int)(l: IntList): IntList =
-  ???
+  IntCons(x, IntCons(y, l))
 
 def containsBasic(l: IntList, n: Int): Boolean =
   !l.isEmpty && (n == l.head || contains(l.tail, n))
 
 def containsAnon: (IntList, Int) => Boolean =
-  TODO
+  (l, n) => !l.isEmpty && (n == l.head || contains(l.tail, n))
 
 def containsCurried: IntList => Int => Boolean =
-  TODO
+  l => n => !l.isEmpty && (n == l.head || contains(l.tail, n))
 
 def containsCurriedDef(l: IntList)(n: Int): Boolean =
-  ???
+  !l.isEmpty && (n == l.head || contains(l.tail, n))
 
 def headHasPropertyBasic(p: Int => Boolean, l: IntList): Boolean =
   !l.isEmpty && p(l.head)
 
 val headHasPropertyAnon: ((Int => Boolean), IntList) => Boolean =
-  TODO
+  (p, l) => !l.isEmpty && p(l.head)
 
 val headHasPropertyCurried: (Int => Boolean) => IntList => Boolean =
-  TODO
+  p => l => !l.isEmpty && p(l.head)
 
 def headHasPropertyCurriedDef(p: Int => Boolean)(l: IntList): Boolean =
-  ???
+  !l.isEmpty && p(l.head)
 
 val headIsEven2 =
-  TODO
+  headHasPropertyCurried(_ % 2 == 0)
 val headIsPositive2 =
-  TODO
+  headHasPropertyCurried(_ > 0)
 
 val headHasPropertyCurried0: (Int => Boolean) => IntList => Boolean =
   (p: Int => Boolean) => (l: IntList) => !l.isEmpty && p(l.head)
@@ -202,13 +216,13 @@ val cs214Staff =
   IntCons(654321, IntCons(333444, IntNil()))
 
 def isRegisteredForCS214Def(sciper: Int): Boolean =
-  ???
+  containsBasic(cs214All, sciper)
 
 val isRegisteredForCS214Val =
-  TODO
+  containsCurried(cs214All)
 
 def isCS214StudentDef(sciper: Int): Boolean =
-  ???
+  containsBasic(cs214All, sciper) && !containsBasic(cs214Staff, sciper)
 
 def andLifter(f: Int => Boolean, g: Int => Boolean): Int => Boolean =
   n => f(n) && g(n)
@@ -217,7 +231,7 @@ def notLifter(f: Int => Boolean): Int => Boolean =
   n => !f(n)
 
 val isCS214StudentVal =
-  TODO
+  andLifter(containsCurried(cs214All), notLifter(containsCurried(cs214Staff)))
 
 def isCourseStudentDefPartlyCurried(all: IntList, staff: IntList): Int => Boolean =
-  ???
+  containsCurried(difference(all, staff))

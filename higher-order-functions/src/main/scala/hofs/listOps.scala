@@ -71,12 +71,10 @@ def multiplyBy2(l: IntList): IntList =
   else IntCons(2 * l.head, multiplyBy2(l.tail))
 
 def anyNegative(l: IntList): Boolean =
-  if l.isEmpty then false
-  else l.head < 0 || anyNegative(l.tail)
+  existsNoIf(_ < 0)(l)
 
 def allEven(l: IntList): Boolean =
-  if l.isEmpty then true
-  else (l.head % 2 == 0) && allEven(l.tail)
+  forallNoIf(_ % 2 == 0)(l)
 
 def multiplyOdd(l: IntList): Int =
   if l.isEmpty then 1
